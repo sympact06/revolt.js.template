@@ -1,0 +1,31 @@
+{
+  "name": "revolt.js.template",
+  "version": "1.0.0",
+  "description": "Template for revolt.js to make a bot easier",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sympact06/revolt.js.template.git"
+  },
+  "keywords": [
+    "revolt"
+  ],
+  "author": "Sympact",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sympact06/revolt.js.template/issues"
+  },
+  "homepage": "https://github.com/sympact06/revolt.js.template#readme",
+  "dependencies": {
+    "@babel/cli": "^7.21.0",
+    "@babel/core": "^7.21.3",
+    "@babel/preset-env": "^7.20.2",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "form-data": "^4.0.0",
+    "node-fetch": "^3.3.1",
+    "revolt.js": "^6.0.20"
+  }
+}
