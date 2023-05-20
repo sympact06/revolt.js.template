@@ -2,14 +2,20 @@ const { Client } = require("revolt.js");
 const fs = require("fs");
 const { token, prefix, logging } = require("./config.js");
 const { Logger } = require("./lib/Logging");
-const { Message } = require("./lib/Message");
-const message = new Message("0.1.2");
 const SympactEmbedBuilder = require("./lib/EmbedBuilder");
 
 class Command {
-  constructor(name, description, execute) {
+  constructor(name, description, execute, category = 'General') {
     this.name = name;
     this.description = description;
+    this.execute = execute;
+    this.category = category;
+  }
+}
+
+class Event {
+  constructor(name, execute) {
+    this.name = name;
     this.execute = execute;
   }
 }
@@ -21,17 +27,14 @@ class MyRevoltBot {
     this.commands = new Map();
     this.setupListeners();
     this.loadCommands();
+    this.loadEvents();
   }
 
   setupListeners() {
     this.client.on("ready", () =>
-      this.logger.info(
-        `Logged in as ${this.client.user.username}!`,
-        "MyRevoltBot"
-      )
+      this.logger.info(`Logged in as ${this.client.user.username}!`, "MyRevoltBot")
     );
     this.client.on("message", this.handleMessage.bind(this));
-    message.start();
   }
 
   async handleMessage(message) {
@@ -67,17 +70,10 @@ class MyRevoltBot {
       .filter((file) => file.endsWith(".js"));
 
     for (const file of commandFiles) {
-      try {
-        const { name, description, execute } = require(`./commands/${file}`);
-        const command = new Command(name, description, execute);
-        this.commands.set(name, command);
-      } catch (err) {
-        this.logger.error(
-          `Error loading command file '${file}':`,
-          err,
-          "MyRevoltBot"
-        );
-      }
+      const { name, description, execute, category } = require(`./commands/${file}`);
+      const command = new Command(name, description, execute, category);
+      this.commands.set(name, command);
+      this.logger.info(`Command loaded: ${command.name}`);
     }
   }
 
@@ -86,6 +82,15 @@ class MyRevoltBot {
       await this.client.loginBot(token);
     } catch (err) {
       this.logger.error("Error logging in:", err, "MyRevoltBot");
+    }
+  }
+
+  loadEvents() {
+    const eventFiles = fs.readdirSync("./events").filter(file => file.endsWith(".js"));
+    for (const file of eventFiles) {
+      const event = require(`./events/${file}`);
+      this.client.on(event.name, event.execute.bind(null, this));
+      this.logger.info(`Event loaded: ${event.name}`);
     }
   }
 
@@ -123,6 +128,7 @@ class MyRevoltBot {
 
 const myBot = new MyRevoltBot();
 myBot.login();
+
 myBot.commands.set(
   "help",
   new Command(
